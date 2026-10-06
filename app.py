@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse
 
-from crawl4ai import AsyncWebCrawler
+from crawl4ai import AsyncWebCrawler, BrowserConfig 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
@@ -107,7 +107,11 @@ async def analyze(req: AnalyzeRequest):
     client = get_client()
 
     # Step 1: crawl and render the page locally with Crawl4AI
-    async with AsyncWebCrawler() as crawler:
+    browser_config = BrowserConfig(
+    headless=True,
+    browser_type="chromium"
+)
+    async with AsyncWebCrawler(config=browser_config) as crawler:
         result = await crawler.arun(url=url)
     if not result.success:
         raise HTTPException(502, f"Crawling failed: {result.error_message}")
